@@ -4,9 +4,8 @@ class Node {
     double x, y;
     Point point;
     Node left, right;
-    Branch branch;
-//    Branch branch;
-//    Queue branch;
+
+
 
     Node(String name, double x, double y, int mod) {
         this.name = name;

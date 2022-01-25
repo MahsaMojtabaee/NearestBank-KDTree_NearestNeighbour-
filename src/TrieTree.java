@@ -1,148 +1,147 @@
 public class TrieTree {
 
-    // Alphabet size (# of symbols)
-    static final int ALPHABET_SIZE = 26;
+    static Trie TrieRoot;
 
-    // trie node
-    static class TrieNode
-    {
-        TrieNode[] children = new TrieNode[ALPHABET_SIZE];
-
-        // isEndOfWord is true if the node represents
-        // end of a word
-        boolean isEndOfWord;
-        String branches;
-        KDTree kdBranches;
-        TrieNode(){
-            isEndOfWord = false;
-//            branches = "";
-//            kdBranches = new KDTree();
-            for (int i = 0; i < ALPHABET_SIZE; i++)
-                children[i] = null;
-        }
-    };
-
-    static class NeighbourNode extends Trie.TrieNode{
-        double X_min;
-        double X_max;
-        double Y_min;
-        double Y_max;
-        NeighbourNode [] children;
-        NeighbourNode () {
-            this.Y_min = Double.parseDouble(null);
-            this.X_min = Double.parseDouble(null);
-            this.Y_max = Double.parseDouble(null);
-            this.X_max = Double.parseDouble(null);
-        }
-        NeighbourNode (double X_min, double Y_min, double X_max, double Y_max){
-            this.X_max = X_max;
-            this.Y_max = Y_max;
-            this.X_min = X_min;
-            this.Y_min = Y_min;
-        }
+    TrieTree(Trie R) {
+         TrieRoot = R;
     }
 
-    static TrieNode root;
-    static NeighbourNode Root;
+    void add(String s) {
 
-    // If not present, inserts key into trie
-    // If the key is prefix of trie node,
-    // just marks leaf node
-    static void insert(String key)
-    {
-        root = new TrieNode();
-        int level;
-        int length = key.length();
+        int l = s.length();
+        Trie temp = TrieRoot;
         int index;
-
-        TrieNode pCrawl = root;
-
-        for (level = 0; level < length; level++)
-        {
-            index = key.charAt(level) - 'a';
-            if (pCrawl.children[index] == null)
-                pCrawl.children[index] = new TrieNode();
-
-            pCrawl = pCrawl.children[index];
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (temp.children[index] == null) {
+                temp.children[index] = new Trie();
+            }
+            temp = temp.children[index];
         }
-
-        // mark last node as leaf
-        pCrawl.isEndOfWord = true;
-        pCrawl.branches = "";
-        pCrawl.kdBranches = new KDTree();
+        temp.isEnd = true;
+        temp.branches = new KDTree();
     }
 
-//    static void insertNeighbour(String name, double X_min, double Y_min, double X_max, double Y_max){
-//        int level;
-//        int length = name.length();
-//        int index;
-//
-//        NeighbourNode pCrawl = Root;
-//
-//        for (level = 0; level < length; level++)
-//        {
-//            index = name.charAt(level) - 'a';
-//            if (pCrawl.children[index] == null)
-//                pCrawl.children[index] = new NeighbourNode(X_min, Y_min, X_max, Y_max);
-//
-//            pCrawl = pCrawl.children[index];
-//        }
-//
-//        // mark last node as leaf
-//        pCrawl.isEndOfWord = true;
-//        pCrawl.branches = "";
-//    }
+    Trie search(String s) {
 
-    // Returns true if key presents in trie, else false
-    static TrieNode search(String key)
-    {
-        int level;
-        int length = key.length();
+        int l = s.length();
         int index;
-        TrieNode pCrawl = root;
-
-        for (level = 0; level < length; level++)
-        {
-            index = key.charAt(level) - 'a';
-
-            if (pCrawl.children[index] == null) {
+        Trie temp = TrieRoot;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (temp.children[index] == null) {
                 return null;
             }
-            pCrawl = pCrawl.children[index];
+            temp = temp.children[index];
         }
-
-        if(pCrawl.isEndOfWord){
-            return pCrawl;
+        if (temp != null && temp.isEnd) {
+            return temp;
         }
         return null;
     }
 
-    static boolean addBranches(String MainBank, String branchName, double X, double Y){
-        int level;
-        int length = MainBank.length();
+    boolean delete(String s) {
+        int l = s.length();
         int index;
-        TrieNode pCrawl = root;
-        if(pCrawl == null){
-            System.out.println("There is no such main bank");
-            return false;
-        }
-        for (level = 0; level < length; level++)
-        {
-            index =  MainBank.charAt(level) - 'a';
-
-            if (pCrawl.children[index] == null)
+        Trie t = TrieRoot;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
                 return false;
-
-            pCrawl = pCrawl.children[index];
+            }
+            t = t.children[index];
         }
-
-        if(pCrawl.isEndOfWord) {
-            pCrawl.branches += "(" + X + "," + Y + ")";
-            pCrawl.kdBranches.insert(branchName,X,Y);
+        if (t != null && t.isEnd) {
+            t.isEnd = false;
             return true;
         }
         return false;
     }
 
-}
+    public void PrintBranchesCoordinates(String MainBankName){
+        Trie node = search(MainBankName);
+        if(node == null){
+            System.out.println("There is no bank with this name.");
+            return;
+        }
+        node.branches.inorder();
+    }
 
+    Node NearestNeighbourBranches(String MainBankName, double X, double Y){
+        return search(MainBankName).branches.NearestNeighbour(search(MainBankName).branches.root, X, Y, 0);
+    }
+    public void addToBranches(String s, String name, double X, double Y) {
+        int l = s.length();
+        Trie t = TrieRoot;
+        int index;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
+                t.children[index] = new Trie();
+            }
+            t = t.children[index];
+        }
+        t.branches.addB(name, X, Y);
+//        t.branches.push(name);
+    }
+    KDTree listBranches(String s) {
+
+        int l = s.length();
+        int index;
+        Trie t = TrieRoot;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
+                return null;
+            }
+            t = t.children[index];
+        }
+        if (t != null && t.isEnd) {
+            return t.branches;
+        }
+        return null;
+    }
+    boolean ismain(String s) {
+
+        int l = s.length();
+        int index;
+        Trie t = TrieRoot;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
+                return false;
+            }
+            t = t.children[index];
+        }
+        if (t != null && t.isEnd && t.isB) {
+            return true;
+        }
+        return false;
+    }
+
+//    boolean removeFromBranches(String[] ss) {
+//        String s = ss[1];
+//        int l = s.length();
+//        Trie t = root;
+//        int index;
+//        for (int i = 0; i < l; i++) {
+//            index = s.charAt(i) - 'a';
+//            if (t.children[index] == null) {
+//                t.children[index] = new Trie();
+//            }
+//            t = t.children[index];
+//        }
+//        MyStack<String> temp = new MyStack<>();
+//        while (){
+//            if (t.branches.peek().equals(ss[0])) {
+//                t.branches.pop();
+//            } else {
+//                temp.push(t.branches.pop());
+//            }
+//        }
+//        while (!temp.isEmpty()) {
+//            t.branches.push(temp.pop());
+//        }
+//        return true;
+//    }
+}

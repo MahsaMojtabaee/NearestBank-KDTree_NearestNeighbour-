@@ -1,27 +1,15 @@
-import java.nio.channels.Pipe;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 
 public class KDTree {
-    public static Node root ;
-    TrieTree banks = new TrieTree();
-    TrieTree neighbourBanks = new TrieTree();
-//    private static HashMap<String, Rectangle> district = new HashMap<>(); // district name -> Rect
-//    //    private static HashMap<String, String> nameOfTheCoordinate = new HashMap<>(); // coordinate -> name of the bank or branch
-//    private static HashMap<String, String> bankOfTheBranch = new HashMap<>(); // branch name -> bank name
-////    private static HashMap<String, Node> banks = new HashMap<>(); // name -> Node
-//    private static HashMap<String, String> types = new HashMap<>(); // coordinate -> type
-//        private static HashMap<String, Point> bank_main = new HashMap<>(); // list of the main banks
-//    private static HashMap<String, Point> bank_branch = new HashMap<>(); // list of the branches
-//    private static HashMap<String, Integer> fame_degree = new HashMap<>(); // most famous bank
+    public  Node root ;
+
 
     KDTree(){
-        this.root = null;
+        root = null;
     }
 
-    static Node insert(Node root, String name, double x, double y,int mod) {
+   static Node insert(Node root, String name, double x, double y,int mod) {
         if (root == null) {
             return new Node(name, x, y, mod);
         }
@@ -39,7 +27,7 @@ public class KDTree {
         }
         return root;
     }
-    static void insert(String name, double x, double y) {
+    void addB(String name, double x, double y) {
         root = insert(root, name, x, y, 0);
     }
 
@@ -56,6 +44,22 @@ public class KDTree {
             System.out.print("(" + root.x + ", " + root.y + ")  ");
             inorder(root.right);
         }
+    }
+
+    private static Node search(Node root, double x, double y) {
+        if (root == null)
+            return null;
+
+        if (root.x == x && root.y == y)
+            return root;
+        if (root.mod == 0 && x < root.x || root.mod == 1 && y < root.y)
+            return search(root.left, x, y);
+        else
+            return search(root.right, x, y);
+    }
+
+    private Node search(double x, double y) {
+        return search(root, x, y);
     }
 
     //////////////////////////////////////////////////////////////////////////////////// NEAREST NEIGHBOUR
@@ -76,7 +80,8 @@ public class KDTree {
         return P2;
 
     }
-    private static Node NearestNeighbour(Node Root, double X, double Y, int mod){
+
+    public Node NearestNeighbour(Node Root, double X, double Y, int mod){
         if(Root == null){
             return null;
         }
@@ -100,39 +105,6 @@ public class KDTree {
 
         return best;
     }
-
-
-
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    void addN(String name, double x_min, double x_max, double y_min, double y_max) {
-        Rectangle rect = new Rectangle(name, x_min, x_max, y_min, y_max);
-//        district.put(name, rect);
-    }
-    void addB(double x, double y, String name) {
-        insert(name ,x, y);
-        banks.insert(name);
-    }
-    void addBr(String MainBankName, String name, double x, double y) {
-        insert(name, x, y);
-        banks.addBranches(MainBankName, name, x, y);
-    }
-    void listBrs(String MainBankName){
-        System.out.println(banks.search(MainBankName).branches);
-    }
-    Node nearB(double X, double Y){
-        return NearestNeighbour(root, X, Y, 0);
-    }
-    Node nearBr(String MainBankName, double X, double Y){
-        return NearestNeighbour((Node) banks.search(MainBankName).kdBranches.root, X, Y, 0);
-    }
-
 
     private static void options() {
         System.out.println("1. Add Neighbourhood");
@@ -158,19 +130,4 @@ public class KDTree {
                 double y = input.nextDouble();
     }
 
-    public static void main(String[] args) {
-        KDTree t = new KDTree();
-//        t.addB(1, 2, "a");
-        t.insert("a", 2, 2);
-        System.out.println(t.root.name);
-//        t.addB(0, 2, "b");
-        t.insert("b", 1, 2);
-        System.out.println(t.root.left.name);
-//        t.addBr("a", "A.1", 1, 6);
-        t.insert("c", 0, 1);
-        System.out.println(t.root.left.left.name);
-                t.addBr("a", "A.1", 1, 6);
-        t.inorder();
-        System.out.println(t.nearB(1,5).name);
-    }
 }
