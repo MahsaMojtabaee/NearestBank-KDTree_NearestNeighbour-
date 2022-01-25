@@ -1,14 +1,18 @@
-class Node { // nodes as banks
+class Node {
     int mod;
     String name;
     double x, y;
+    Point point;
     Node left, right;
     Branch branch;
+//    Branch branch;
+//    Queue branch;
 
     Node(String name, double x, double y, int mod) {
         this.name = name;
         this.x = x;
         this.y = y;
+        point = new Point(x,y);
         mod = mod;
         left = right = null;
     }
