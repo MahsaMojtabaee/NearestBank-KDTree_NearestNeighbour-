@@ -1,6 +1,6 @@
 public class TrieTree {
 
-    static Trie TrieRoot;
+    Trie TrieRoot;
 
     TrieTree(Trie R) {
          TrieRoot = R;
@@ -21,7 +21,20 @@ public class TrieTree {
         temp.isEnd = true;
         temp.branches = new KDTree();
     }
-
+    void addRec(String s, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
+        int l = s.length();
+        Trie temp = TrieRoot;
+        int index;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (temp.children[index] == null) {
+                temp.children[index] = new Trie();
+            }
+            temp = temp.children[index];
+        }
+        temp.isEnd = true;
+        temp.reg = new Region(s, x1,y1,x2,y2,x3,y3,x4,y4);
+    }
     Trie search(String s) {
 
         int l = s.length();
@@ -58,6 +71,16 @@ public class TrieTree {
         return false;
     }
 
+    void printRegionalBanks(String s){
+        Trie node = search(s);
+        if(node == null){
+            System.out.println("There is no bank with this name.");
+            return;
+        }
+        System.out.println(node.reg.name);
+        node.reg.banks.inorder();
+    }
+
     public void PrintBranchesCoordinates(String MainBankName){
         Trie node = search(MainBankName);
         if(node == null){
@@ -81,7 +104,15 @@ public class TrieTree {
             }
             t = t.children[index];
         }
-        t.branches.addB(name, X, Y);
+        if(AlreadyExistsByCoordinates(s , X, Y)){
+            System.out.println("These coordinates was taken before");
+            return;
+        }
+        if(AlreadyExistsByName(s, name)){
+            System.out.println("This name is already taken");
+            return;
+        }
+        t.branches.insert(name,false, X, Y);
 //        t.branches.push(name);
     }
     KDTree listBranches(String s) {
@@ -101,6 +132,32 @@ public class TrieTree {
         }
         return null;
     }
+    boolean AlreadyExistsByCoordinates(String s, double x, double y){
+        int l = s.length();
+        Trie t = TrieRoot;
+        int index;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
+                t.children[index] = new Trie();
+            }
+            t = t.children[index];
+        }
+        return (t.branches.search(x, y) != null);
+    }
+    boolean AlreadyExistsByName(String s, String name){
+        int l = s.length();
+        Trie t = TrieRoot;
+        int index;
+        for (int i = 0; i < l; i++) {
+            index = s.charAt(i) - 'a';
+            if (t.children[index] == null) {
+                t.children[index] = new Trie();
+            }
+            t = t.children[index];
+        }
+        return (t.branches.searchByName(name) != null);
+    }
     boolean ismain(String s) {
 
         int l = s.length();
@@ -118,7 +175,32 @@ public class TrieTree {
         }
         return false;
     }
+    void addBankToRegion(Trie itr, double x, double y, String bankName, boolean isMain) {
+        // Base condition
+        if (itr == null)
+            return;
+        // Loop for printing t a value of character
+        for (int i = 0; i < 26; i++) {
 
+            if(itr.reg != null && itr.reg.isInRegion(x, y)){
+
+                itr.reg.banks.insert(bankName, isMain, x, y);
+            }
+            // Recursive call for print pattern
+            if (itr.children[i] != null) {
+                addBankToRegion(itr.children[i], x, y, bankName, isMain);
+            }
+        }
+    }
+    void addBankToRegion(double x, double y, String name, boolean isMain){
+        addBankToRegion(TrieRoot, x, y, name, isMain);
+    }
+    KDTree getBranches(String s){
+        if(search(s) == null){
+            return null;
+        }
+        return search(s).branches;
+    }
 //    boolean removeFromBranches(String[] ss) {
 //        String s = ss[1];
 //        int l = s.length();

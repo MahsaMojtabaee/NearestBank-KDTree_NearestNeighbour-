@@ -1,17 +1,17 @@
+import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 
 public class KDTree {
     public  Node root ;
 
-
     KDTree(){
         root = null;
     }
 
-   static Node insert(Node root, String name, double x, double y,int mod) {
+    Node insert(Node root, String name, boolean isMain, double x, double y,int mod) {
         if (root == null) {
-            return new Node(name, x, y, mod);
+            return new Node(name, isMain, x, y, mod);
         }
 
         if (root.x == x && root.y == y) {
@@ -20,15 +20,150 @@ public class KDTree {
         }
 
         if ((root.mod==0 && x < root.x) || (root.mod==1 && y < root.y)) {
-            root.left = insert(root.left, name, x, y, (root.mod == 0 ? 1 : 0));
+            root.left = insert(root.left, name, isMain, x, y, (root.mod == 0 ? 1 : 0));
         }
         else {
-            root.right = insert(root.right, name, x, y, (root.mod == 0 ? 1 : 0));
+            root.right = insert(root.right, name, isMain, x, y, (root.mod == 0 ? 1 : 0));
+        }
+        root.numOfBranches += 1;
+        return root;
+    }
+
+    void insert(String name, boolean isMain, double x, double y) {
+        root = insert(root, name,isMain,  x, y, 0);
+    }
+//    Node findMin(Node root, int d, int mod) {
+//        if (root == null)
+//            return null;
+//
+//        if (mod == 0){
+//            if (root.left == null)
+//                return root;
+//            return findMin(root.left, d, (mod == 0 ? 1 : 0));
+//        }
+//        return least(root, findMin(root.left, d, (mod == 0 ? 1 : 0)), findMin(root.right, d, (mod == 0 ? 1 : 0)), d);
+//    }
+//
+//    Node findMin(Node root) {
+//        return findMin(root, 0, 0);
+//    }
+//
+//    Node least(Node root1, Node root2, Node root3, int mod) {
+//        Node res = root1;
+//        if (root2 != null && (mod == 0 && root2.x < res.x || mod == 1 && root2.y < res.y))
+//            res = root2;
+//        if (root3 != null && (mod == 0 && root3.x < res.x || mod == 1 && root3.y < res.y))
+//            res = root3;
+//        return res;
+//    }
+//
+//    Node deleteNode(Node root, double x, double y, int mod) {
+//        if (root == null)
+//            return null;
+//
+//        if (root.x == x && root.y == y) {
+//            if (root.right != null) {
+//                Node min = findMin(root.right);
+//                root.x = min.x;
+//                root.y = min.y;
+//                root.right = deleteNode(root.right, min.x, min.y, (mod == 0 ? 1 : 0));
+//            } else if (root.left != null) {
+//                Node min = findMin(root.left);
+//                root.x = min.x;
+//                root.y = min.y;
+//                root.right = deleteNode(root.left, min.x, min.y, (mod == 0 ? 1 : 0));
+//            } else {  // If node is leaf
+//                root = null;
+//                return null;
+//            }
+//            return root;
+//        }
+//
+//        if (root.mod == 0 && x < root.x || root.mod == 1 && y < root.y)
+//            root.left = deleteNode(root.left, x, y, (mod == 0 ? 1 : 0));
+//        else
+//            root.right = deleteNode(root.right, x, y, (mod == 0 ? 1 : 0));
+//        return root;
+//    }
+//
+//    void deleteNode(double x, double y) {
+//        deleteNode(root, x, y, 0);
+//    }
+
+
+    Node findMin(Node root, int e, int d) {
+
+        if (root == null) {
+            return null;
+        }
+
+        if (d == e) {
+            if (root.left == null) {
+                return root;
+            }
+            return findMin(root.left, e, d + 1);
+        }
+        return Min(root, findMin(root.left, e, d + 1), findMin(root.right, e, d + 1), d);
+    }
+
+    Node Min(Node a, Node b, Node c, int d) {
+
+        Node temp = a;
+        if (b != null && ((d == 0 && b.x < temp.x) || (d == 1 && b.y < temp.y))) {
+            temp = b;
+        }
+        if (c != null && ((d == 0 && c.x < temp.x) || (d == 1 && c.y < temp.y))) {
+            temp = c;
+        }
+        return temp;
+
+    }
+
+    Node deleteNode(Node root, double x, double y, int d) {
+
+        if (root == null) {
+            return null;
+        }
+
+        if (root.x == x && root.y == y) {
+            if (root.right != null) {
+                Node min = findMin(root.right, d, 0);
+                root.x = min.x;
+                root.y = min.y;
+//                root.isB = min.isB;
+                if (min.name != null)
+                    root.name = min.name;
+//                if (min.mainB != null)
+//                    root.mainB = min.mainB;
+                root.right = deleteNode(root.right, min.x, min.y, (d == 0 ? 1 : 0));
+
+            } else if (root.left != null) {
+                Node min = findMin(root.left, d, 0);
+                root.x = min.x;
+                root.y = min.y;
+//                root.isB = min.isB;
+                if (min.name != null)
+                    root.name = min.name;
+//                if (min.mainB != null)
+//                    root.mainB = min.mainB;
+                root.right = deleteNode(root.left, min.x, min.y, (d == 0 ? 1 : 0));
+            } else {
+                root = null; //??
+                return root;
+            }
+            return root;
+        }
+
+        if ((d == 0 && x < root.x) || (d == 1 && y < root.y)) {
+            root.left = deleteNode(root.left, x, y, d + 1);
+        } else {
+            root.right = deleteNode(root.right, x, y, d + 1);
         }
         return root;
     }
-    void addB(String name, double x, double y) {
-        root = insert(root, name, x, y, 0);
+
+    void deleteNode(double x, double y){
+        root = deleteNode(root, x, y, 0);
     }
 
     public void inorder()
@@ -36,8 +171,7 @@ public class KDTree {
         inorder(root);
     }
 
-    private void inorder(Node root)
-    {
+    private void inorder(Node root){
         if (root != null)
         {
             inorder(root.left);
@@ -45,8 +179,40 @@ public class KDTree {
             inorder(root.right);
         }
     }
+    public void FindMaxBranches()
+    {
+        System.out.println(FindMaxBranches(root, root.numOfBranches, root).name);
+    }
 
-    private static Node search(Node root, double x, double y) {
+    private Node FindMaxBranches(Node root, int Max, Node MaxBranches){
+        if (root != null )
+        {
+            FindMaxBranches(root.left, Max, MaxBranches);
+            if(root.numOfBranches > Max)
+            Max = root.numOfBranches;
+            MaxBranches =root;
+            FindMaxBranches(root.right, Max, MaxBranches);
+        }
+        return root;
+    }
+
+    public Node searchByName(String name) {
+        return searchByName(root, name);
+    }
+
+    private Node searchByName(Node root, String name) {
+        if(root == null){
+            return null;
+        }
+        inorder(root.left);
+        if(root.name == name){
+            return root;
+        }
+        inorder(root.right);
+        return null;
+    }
+
+    static Node search(Node root, double x, double y) {
         if (root == null)
             return null;
 
@@ -58,9 +224,34 @@ public class KDTree {
             return search(root.right, x, y);
     }
 
-    private Node search(double x, double y) {
+    Node search(double x, double y) {
         return search(root, x, y);
     }
+
+    void printNodesInArea(Node node,Region area, int mod) {
+        if (node == null)
+            return;
+        int containsResult = area.containsPoint(node.x, node.y, mod);
+        if (containsResult == 0) {
+            // check both subtrees
+            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
+            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
+        } else if (containsResult > 0) {
+            // check only left subtree
+            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
+        } else {
+            // check only right subtree
+            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
+        }
+        if (containsResult == 0 && area.containsPoint(node.x, node.y, (mod == 0 ? 1 : 0)) == 0) {
+//            System.out.println("There  " at point "+node->branch->point.x << " " << node->branch->point.y << endl);
+        }
+    }
+
+    void printNodesInArea(Region area){
+        printNodesInArea(root, area, 0);
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////// NEAREST NEIGHBOUR
     private static double distance(Point p1, Point p2) {
@@ -105,7 +296,9 @@ public class KDTree {
 
         return best;
     }
-
+    public Node NearestNeighbour(double x, double y){
+        return NearestNeighbour(root, x, y, 0);
+    }
     private static void options() {
         System.out.println("1. Add Neighbourhood");
         System.out.println("2. Add Bank");

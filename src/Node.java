@@ -4,15 +4,18 @@ class Node {
     double x, y;
     Point point;
     Node left, right;
+    boolean isMain;
+    int numOfBranches;
 
 
-
-    Node(String name, double x, double y, int mod) {
+    Node(String name, boolean isMain, double x, double y, int mod) {
+        numOfBranches = 0;
         this.name = name;
+        this.isMain = isMain;
         this.x = x;
         this.y = y;
         point = new Point(x,y);
-        mod = mod;
+        this.mod = mod;
         left = right = null;
     }
 }
