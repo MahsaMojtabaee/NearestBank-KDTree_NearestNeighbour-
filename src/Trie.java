@@ -5,7 +5,8 @@ public class Trie {
     boolean isB = false;
     public RectangleNode coo;
 //    MyStack<String> branches;
-    KDTree branches;
+//    KDTree branches;
+    Node bank;
 //    Node bank;
     Region reg;
     Trie[] children = new Trie[ALPHA];
