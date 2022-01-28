@@ -11,11 +11,12 @@ public class Test {
     }
     static void addB(String name, double x, double y){
         banks.insert(name,true, x, y);
-        bBanks.add(name);
+        bBanks.add(name, x, y);
         regions.addBankToRegion(x, y, name, true);
     }
     static void addBr(String mainBankName, String branchName, double x, double y){
-        banks.insert(branchName,false, x, y);
+        banks.insertBranch(branchName,false, x, y, mainBankName);
+//        banks.searchByName(mainBankName)..insert(branchName, false, x, y);
         bBanks.addToBranches(mainBankName, branchName, x, y);
         regions.addBankToRegion(x, y, branchName, false);
     }
@@ -27,7 +28,14 @@ public class Test {
         }
         System.out.println("name : "+ bank.name);
         System.out.println("coordinates : ("+bank.x+", "+bank.y+")");
-        System.out.println("Region ?????????????????????????");
+        KDTree branches = bBanks.getBranches(bank.name);
+        if(branches == null){
+            System.out.println("This bank has no branch.");
+        }
+        else {
+            System.out.println("branches are ");
+            branches.inorder();
+        }
     }
     static void nearBr(String name, double x, double y){
         Node bank = bBanks.NearestNeighbourBranches(name, x, y);
@@ -45,7 +53,8 @@ public class Test {
         regions.printRegionalBanks(name);
     }
     static void delBr(double x, double y){
-        banks.deleteNode(x, y);
+        System.out.println(banks.delete(x, y));
+        bBanks.delete(x, y);
     }
     static void mostBrs(){
         banks.FindMaxBranches();
@@ -54,24 +63,32 @@ public class Test {
         addN("state", -1,-1,-1,1, 1, -1, 1, -1);
         addB("a", 0, 1);
         addBr("a", "A1", 0, 2);
-        addB("b", 1, 1);
-        addB("c", 1, -1);/////////////////////////////////// nazdik tarin agar 2 ta bood chi?????
-        nearB(1,0);
+        addBr("a", "A2", 0, 3);
+        System.out.println();
         banks.inorder();
-        System.out.println(banks.searchByName("a") != null);
-        addBr("a", "A1", 1, 5);
-        addBr("a", "BBb", 0, 6);
-        nearBr("a", 0, 5);
-        listBrs("a");
-        System.out.println("Here are the banks of state");
-        listB("state");
         System.out.println();
-        listBrs("a");
-        delBr(0,6);
-        System.out.println();
-        listBrs("a");
-        System.out.println();
-        mostBrs();
+//        listBrs("a");
+//        delBr(0, 2);
+//        listBrs("a");
+
+//        addB("b", 1, 1);
+//        addB("c", 1, -1);/////////////////////////////////// nazdik tarin agar 2 ta bood chi?????
+//        nearB(1,0);
+//        banks.inorder();
+//        System.out.println(banks.searchByName("a") != null);
+//        nearBr("a", 0, 5);
+//        listBrs("a");
+//        System.out.println("Here are the banks of state");
+//        listB("state");
+//        System.out.println();
+//        listBrs("a");
+//        delBr(0,6);
+//        System.out.println();
+//        listBrs("a");
+//        System.out.println();
+//        mostBrs();
+
+
 //        regions.put("AAA",new Region( 1, 2,1,2,0,3,0,3));
 //        KDTree kdt = new KDTree();
 //        Trie R = new Trie();

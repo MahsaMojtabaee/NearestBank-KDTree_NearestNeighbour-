@@ -6,6 +6,7 @@ public class Trie {
     public RectangleNode coo;
 //    MyStack<String> branches;
     KDTree branches;
+//    Node bank;
     Region reg;
     Trie[] children = new Trie[ALPHA];
 

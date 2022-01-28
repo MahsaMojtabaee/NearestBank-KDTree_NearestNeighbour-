@@ -1,4 +1,3 @@
-import java.util.GregorianCalendar;
 import java.util.Scanner;
 
 
@@ -32,139 +31,108 @@ public class KDTree {
     void insert(String name, boolean isMain, double x, double y) {
         root = insert(root, name,isMain,  x, y, 0);
     }
-//    Node findMin(Node root, int d, int mod) {
-//        if (root == null)
-//            return null;
-//
-//        if (mod == 0){
-//            if (root.left == null)
-//                return root;
-//            return findMin(root.left, d, (mod == 0 ? 1 : 0));
-//        }
-//        return least(root, findMin(root.left, d, (mod == 0 ? 1 : 0)), findMin(root.right, d, (mod == 0 ? 1 : 0)), d);
-//    }
-//
-//    Node findMin(Node root) {
-//        return findMin(root, 0, 0);
-//    }
-//
-//    Node least(Node root1, Node root2, Node root3, int mod) {
-//        Node res = root1;
-//        if (root2 != null && (mod == 0 && root2.x < res.x || mod == 1 && root2.y < res.y))
-//            res = root2;
-//        if (root3 != null && (mod == 0 && root3.x < res.x || mod == 1 && root3.y < res.y))
-//            res = root3;
-//        return res;
-//    }
-//
-//    Node deleteNode(Node root, double x, double y, int mod) {
-//        if (root == null)
-//            return null;
-//
-//        if (root.x == x && root.y == y) {
-//            if (root.right != null) {
-//                Node min = findMin(root.right);
-//                root.x = min.x;
-//                root.y = min.y;
-//                root.right = deleteNode(root.right, min.x, min.y, (mod == 0 ? 1 : 0));
-//            } else if (root.left != null) {
-//                Node min = findMin(root.left);
-//                root.x = min.x;
-//                root.y = min.y;
-//                root.right = deleteNode(root.left, min.x, min.y, (mod == 0 ? 1 : 0));
-//            } else {  // If node is leaf
-//                root = null;
-//                return null;
-//            }
-//            return root;
-//        }
-//
-//        if (root.mod == 0 && x < root.x || root.mod == 1 && y < root.y)
-//            root.left = deleteNode(root.left, x, y, (mod == 0 ? 1 : 0));
-//        else
-//            root.right = deleteNode(root.right, x, y, (mod == 0 ? 1 : 0));
-//        return root;
-//    }
-//
-//    void deleteNode(double x, double y) {
-//        deleteNode(root, x, y, 0);
-//    }
 
 
-    Node findMin(Node root, int e, int d) {
+    Node insertBranch(Node root, String name, boolean isMain, double x, double y,int mod, String MainBank) {
 
         if (root == null) {
-            return null;
+            Node node = new Node(name, isMain, x, y, mod);
+            node.MainBank = MainBank;
+//            System.out.println("main bank is "+node.MainBank);
+            return node;
         }
-
-        if (d == e) {
-            if (root.left == null) {
-                return root;
-            }
-            return findMin(root.left, e, d + 1);
-        }
-        return Min(root, findMin(root.left, e, d + 1), findMin(root.right, e, d + 1), d);
-    }
-
-    Node Min(Node a, Node b, Node c, int d) {
-
-        Node temp = a;
-        if (b != null && ((d == 0 && b.x < temp.x) || (d == 1 && b.y < temp.y))) {
-            temp = b;
-        }
-        if (c != null && ((d == 0 && c.x < temp.x) || (d == 1 && c.y < temp.y))) {
-            temp = c;
-        }
-        return temp;
-
-    }
-
-    Node deleteNode(Node root, double x, double y, int d) {
-
-        if (root == null) {
-            return null;
-        }
-
+        System.out.println("1:");
+        System.out.println(root.name);
         if (root.x == x && root.y == y) {
-            if (root.right != null) {
-                Node min = findMin(root.right, d, 0);
-                root.x = min.x;
-                root.y = min.y;
-//                root.isB = min.isB;
-                if (min.name != null)
-                    root.name = min.name;
-//                if (min.mainB != null)
-//                    root.mainB = min.mainB;
-                root.right = deleteNode(root.right, min.x, min.y, (d == 0 ? 1 : 0));
+            System.out.println("A bank  with these coordinates already exists.");
+            return root;
+        }
+        System.out.println("2:");
+        System.out.println(root.name);
+        if ((root.mod==0 && x < root.x) || (root.mod==1 && y < root.y)) {
+            root.left = insert(root.left, name, isMain, x, y, (root.mod == 0 ? 1 : 0));
+        }
+        else {
+            root.right = insert(root.right, name, isMain, x, y, (root.mod == 0 ? 1 : 0));
+        }
+        System.out.println("3:");
+        System.out.println(root.name);
 
-            } else if (root.left != null) {
-                Node min = findMin(root.left, d, 0);
-                root.x = min.x;
-                root.y = min.y;
-//                root.isB = min.isB;
-                if (min.name != null)
-                    root.name = min.name;
-//                if (min.mainB != null)
-//                    root.mainB = min.mainB;
-                root.right = deleteNode(root.left, min.x, min.y, (d == 0 ? 1 : 0));
-            } else {
-                root = null; //??
-                return root;
+        root.numOfBranches += 1;
+        return root;
+    }
+
+    void insertBranch(String name, boolean isMain, double x, double y, String MainBank) {
+        root = insertBranch(root, name,isMain,  x, y, 0, MainBank);
+    }
+
+
+
+    private Node delete(Node root, double x, double y, int mod) {
+        if (root == null) {
+            return null;
+        }
+        if (root.x == x && root.y == y) {
+
+
+
+//            System.out.println(root.MainBank);
+
+
+
+            if (root.isMain)
+                System.out.println("This is a main bank.You cannot delete it.");
+            else {
+//                deleted_Bank = root.getBranch();
+                if (root.right != null) {
+                    Node min = findMin(root.right, mod, mod);
+                    root = min;
+                    root.right = delete(root.right, min.x, min.y, (mod == 0 ? 1 : 0));
+                } else if (root.left != null) {
+                    Node min = findMin(root.left, mod, mod);
+                    root = min;
+                    root.right = delete(root.left, min.x, min.y, (mod == 0 ? 1 : 0));
+                } else {
+                    root = null;
+                }
             }
             return root;
         }
-
-        if ((d == 0 && x < root.x) || (d == 1 && y < root.y)) {
-            root.left = deleteNode(root.left, x, y, d + 1);
+        if ( (mod == 0 && root.x > x) || (mod == 1 && root.y > y)) {
+            root.left = delete(root.left, x, y, (mod == 0 ? 1 : 0));
         } else {
-            root.right = deleteNode(root.right, x, y, d + 1);
+            root.right = delete(root.right, x, y, (mod == 0 ? 1 : 0));
         }
         return root;
     }
 
-    void deleteNode(double x, double y){
-        root = deleteNode(root, x, y, 0);
+    private Node findMin(Node root, int targetDim, int mod) {
+        if (root == null)
+            return null;
+        if (targetDim == mod) {
+            if (root.left == null)
+                return root;
+            return findMin(root.left, targetDim, (mod == 0 ? 1 : 0));
+        }
+        Node rightMin = findMin(root.right, targetDim, (mod == 0 ? 1 : 0));
+        Node leftMin = findMin(root.left, targetDim, (mod == 0 ? 1 : 0));
+        Node res = root;
+        if (rightMin != null && ((targetDim == 0 && rightMin.x < res.x) || (targetDim == 1 && rightMin.y < res.y)))
+            res = rightMin;
+        if (leftMin != null && ((targetDim == 0 && leftMin.x < res.x) || (targetDim == 1 && leftMin.y < res.y)))
+            res = leftMin;
+        return res;
     }
+
+    boolean delete(double x, double y){
+        Node node = delete(root, x, y, 0);
+        if (node != null) {
+            root = node;
+            return true;
+        }
+        return false;
+    }
+
 
     public void inorder()
     {
@@ -276,7 +244,6 @@ public class KDTree {
         if(Root == null){
             return null;
         }
-        System.out.println("mod is "+mod+" and root is "+ Root.name);
         Node nextNode;
         Node oppositeNode;
         if((mod == 0 && X < Root.x) || (mod == 1 && Y < Root.y)){

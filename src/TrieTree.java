@@ -6,7 +6,7 @@ public class TrieTree {
          TrieRoot = R;
     }
 
-    void add(String s) {
+    void add(String s, double x, double y) {
 
         int l = s.length();
         Trie temp = TrieRoot;
@@ -19,6 +19,7 @@ public class TrieTree {
             temp = temp.children[index];
         }
         temp.isEnd = true;
+//        temp = new Node(s,true, x, y,0);
         temp.branches = new KDTree();
     }
     void addRec(String s, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
@@ -53,22 +54,30 @@ public class TrieTree {
         return null;
     }
 
-    boolean delete(String s) {
-        int l = s.length();
-        int index;
-        Trie t = TrieRoot;
-        for (int i = 0; i < l; i++) {
-            index = s.charAt(i) - 'a';
-            if (t.children[index] == null) {
-                return false;
+    void delete(Trie itr, double x, double y)
+    {
+
+        // Base condition
+        if (itr == null)
+            return;
+
+        // Loop for printing t a value of character
+        for (int i = 0; i < 26; i++) {
+
+            // Recursive call for print pattern
+            delete(itr.children[i], x, y);
+            if (itr.children[i] != null && itr.branches != null) {
+                System.out.println("KKKKKKKKKKKKKKKKKKKKKKKKKK");
+               if(itr.branches.delete(x, y)) {
+//                   return itr;
+               }
             }
-            t = t.children[index];
         }
-        if (t != null && t.isEnd) {
-            t.isEnd = false;
-            return true;
-        }
-        return false;
+//        return itr;
+    }
+    void delete(double x, double y) {
+//        TrieRoot = delete(TrieRoot, x, y);
+        delete(TrieRoot , x, y);
     }
 
     void printRegionalBanks(String s){
@@ -112,7 +121,12 @@ public class TrieTree {
             System.out.println("This name is already taken");
             return;
         }
-        t.branches.insert(name,false, X, Y);
+        if(t.branches == null){
+            System.out.println("There is no bank with this name.");
+            return;
+        }
+        t.branches.insertBranch(name, false, X, Y, s);
+//        t.branches.insert(name,false, X, Y);
 //        t.branches.push(name);
     }
     KDTree listBranches(String s) {
@@ -143,6 +157,10 @@ public class TrieTree {
             }
             t = t.children[index];
         }
+        if(t.branches == null){
+//            System.out.println("There is no bank with the name "+s);
+            return false;
+        }
         return (t.branches.search(x, y) != null);
     }
     boolean AlreadyExistsByName(String s, String name){
@@ -155,6 +173,10 @@ public class TrieTree {
                 t.children[index] = new Trie();
             }
             t = t.children[index];
+        }
+        if(t.branches == null){
+//            System.out.println("There is no bank with the name "+s);
+            return false;
         }
         return (t.branches.searchByName(name) != null);
     }
@@ -185,6 +207,7 @@ public class TrieTree {
             if(itr.reg != null && itr.reg.isInRegion(x, y)){
 
                 itr.reg.banks.insert(bankName, isMain, x, y);
+                return;
             }
             // Recursive call for print pattern
             if (itr.children[i] != null) {
@@ -201,6 +224,8 @@ public class TrieTree {
         }
         return search(s).branches;
     }
+
+
 //    boolean removeFromBranches(String[] ss) {
 //        String s = ss[1];
 //        int l = s.length();

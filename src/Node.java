@@ -6,9 +6,12 @@ class Node {
     Node left, right;
     boolean isMain;
     int numOfBranches;
+    String MainBank;
+//    KDTree branches;
 
 
     Node(String name, boolean isMain, double x, double y, int mod) {
+//        branches = new KDTree();
         numOfBranches = 0;
         this.name = name;
         this.isMain = isMain;
