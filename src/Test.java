@@ -1,6 +1,4 @@
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Test {
 
@@ -10,8 +8,7 @@ public class Test {
     static TrieTree bBanks = new TrieTree(new Trie());
     // A TrieTree to store the regions
     static TrieTree regions = new TrieTree(new Trie());
-    int Max;
-    Node BankWithMost;
+
 
     static void addN(String name, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4){
         regions.addRec(name, x1, y1, x2, y2, x3, y3, x4, y4);
@@ -20,7 +17,6 @@ public class Test {
     static void addB(String name, double x, double y){
         banks.insert(name,true, x, y);
         bBanks.add(name, x, y);
-//        regions.addBankToRegion(x, y, name, true);
     }
 
     static void addBr(String mainBankName, String branchName, double x, double y){
@@ -58,17 +54,26 @@ public class Test {
     }
 
     static void listBrs(String name){
-        if(bBanks.search(name) == null){
+        if(bBanks.search(name).bank.branches == null ){
             System.out.println("There is no bank with this name.");
+            return;
         }
         bBanks.PrintBranchesCoordinates(name);
         System.out.println();
     }
 
     static void listB(String name){
-//        regions.printRegionalBanks(name);
+        if (regions.search(name) == null){
+            System.out.println("There is no neighbour with this name.");
+            return;
+        }
+        Region r = regions.search(name).reg;
+        if(r == null){
+            System.out.println("There is no neighbour with this name.");
+            return;
+        }
         System.out.println("Banks in region "+name+" are:");
-        banks.printNodesInArea(regions.search(name).reg);
+        banks.printNodesInArea(r);
     }
 
     static void delBr(double x, double y){
@@ -85,29 +90,29 @@ public class Test {
     static void availB(double R, double x, double y){
         banks.checkIfBanksInArea = false;
         banks.printNodesInCircularArea(new Region("", x-R, y-R, x+R,y+R, x-R, y+R, x+R, y-R), x, y, R);
-        if(banks.checkIfBanksInArea == false){
+        if(!banks.checkIfBanksInArea){
             System.out.println("There is no bank in this area.");
         }
 
     }
 
-    static void mostBrs(){
-        banks.FindMaxBranches();
-    }
+//    static void mostBrs(){
+//        banks.FindMaxBranches();
+//    }
 
     static void PrintMenu(){
         System.out.println("Welcome");
         System.out.println("Here are your options. print the number of option to start the command.");
-        System.out.println("1. add a region");
-        System.out.println("2. add main bank");
-        System.out.println("3. add branches to a bank");
-        System.out.println("4. delete a bank branch");
-        System.out.println("5. The names of banks in a region");
-        System.out.println("6. Coordinates of all branches of a bank");
-        System.out.println("7. Nearest bank");
-        System.out.println("8. Nearest branch of a bank");
-        System.out.println("9. Available banks in a range");
-        System.out.println("10.Exit");
+        System.out.println("0. add a region");
+        System.out.println("1. add main bank");
+        System.out.println("2. add branches to a bank");
+        System.out.println("3. delete a bank branch");
+        System.out.println("4. The names of banks in a region");
+        System.out.println("5. Coordinates of all branches of a bank");
+        System.out.println("6. Nearest bank");
+        System.out.println("7. Nearest branch of a bank");
+        System.out.println("8. Available banks in a range");
+        System.out.println("9.Exit");
 
     }
     public static void main(String[] args) {

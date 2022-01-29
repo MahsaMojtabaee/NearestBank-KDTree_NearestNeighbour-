@@ -54,7 +54,6 @@ public class TrieTree {
             }
         }
         System.out.println("There is no branch with this coordinates");
-        return;
     }
     void delete(double x, double y) {
         delete(TrieRoot , x, y);
@@ -88,23 +87,6 @@ public class TrieTree {
         t.bank.branches.insert(name, false, X, Y);
 //        t.branches.insert(name,false, X, Y);
 //        t.branches.push(name);
-    }
-    KDTree listBranches(String s) {
-
-        int l = s.length();
-        int index;
-        Trie t = TrieRoot;
-        for (int i = 0; i < l; i++) {
-            index = s.charAt(i) - 'a';
-            if (t.children[index] == null) {
-                return null;
-            }
-            t = t.children[index];
-        }
-        if (t != null && t.isEnd) {
-            return t.bank.branches;
-        }
-        return null;
     }
 //    boolean AlreadyExistsByCoordinates(String s, double x, double y){
 //        int l = s.length();
