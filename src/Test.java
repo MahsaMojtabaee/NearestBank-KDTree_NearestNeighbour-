@@ -1,6 +1,6 @@
-import javax.swing.plaf.synth.SynthLookAndFeel;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
 
@@ -24,11 +24,9 @@ public class Test {
     }
 
     static void addBr(String mainBankName, String branchName, double x, double y){
+//        Node node =  banks.searchByName(mainBankName);
         banks.insert(branchName,false, x, y);
-        banks.searchByName(mainBankName).branches.insert(branchName, false, x, y);
-//        banks.searchByName(mainBankName)..insert(branchName, false, x, y);
         bBanks.addToBranches(mainBankName, branchName, x, y);
-//        regions.addBankToRegion(x, y, branchName, false);
     }
 
     static void nearB(double x, double y){
@@ -60,6 +58,9 @@ public class Test {
     }
 
     static void listBrs(String name){
+        if(bBanks.search(name) == null){
+            System.out.println("There is no bank with this name.");
+        }
         bBanks.PrintBranchesCoordinates(name);
         System.out.println();
     }
@@ -71,21 +72,30 @@ public class Test {
     }
 
     static void delBr(double x, double y){
-        banks.delete(x, y);
+        if(!banks.delete(x, y)){
+            return;
+        }
+        else {
+            System.out.println("It is deleted.");
+        }
         bBanks.delete(x, y);
 //        bBanks.deleteBranchRegion(x, y);
     }
 
     static void availB(double R, double x, double y){
-        System.out.println("Banks in the circular area with center ("+x+", "+y+") and radius "+R+" are:");
+        banks.checkIfBanksInArea = false;
         banks.printNodesInCircularArea(new Region("", x-R, y-R, x+R,y+R, x-R, y+R, x+R, y-R), x, y, R);
+        if(banks.checkIfBanksInArea == false){
+            System.out.println("There is no bank in this area.");
+        }
+
     }
 
     static void mostBrs(){
         banks.FindMaxBranches();
     }
 
-    void PrintMenu(){
+    static void PrintMenu(){
         System.out.println("Welcome");
         System.out.println("Here are your options. print the number of option to start the command.");
         System.out.println("1. add a region");
@@ -97,21 +107,195 @@ public class Test {
         System.out.println("7. Nearest bank");
         System.out.println("8. Nearest branch of a bank");
         System.out.println("9. Available banks in a range");
+        System.out.println("10.Exit");
 
     }
     public static void main(String[] args) {
-        addN("state", -1,-1,-1,3, 1, -1, 1, 3);
-        addB("a", 0, 1);
-        addBr("a", "A1", -1, 1);
-        addBr("a", "A2", 0, 3);
-        System.out.println();
-        banks.inorder();
-        System.out.println();
-        listB("state");
-        delBr(-1,1);
-        listB("state");
-        availB(1,0, 0);
+        String p = "[a-z]+";
+        String p2 = "[0-9]";
+        Scanner scr = new Scanner(System.in);
+        while (true) {
+            PrintMenu();
+            System.out.println("Input:");
+            String command = scr.next();
+            if(!command.matches(p2)){
+                System.out.println("Invalid input.Only numbers from 1 to 10");
+                continue;
+            }
+            String pattern = "\\D";
+            if (command.contains(pattern)) {
+                System.out.println("You should enter a number not anything else.");
+            } else {
+                switch (Integer.parseInt(command)) {
+                    case 0: {
+                        System.out.println("To add a new neighbour please enter the essential parameters:");
+                        System.out.print("name (A valid name only contains of lower case alphabets): ");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+//                    System.out.println();
+                        System.out.print("x1:");
+                        double x1 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("y1:");
+                        double y1 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("x2:");
+                        double x2 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("y2:");
+                        double y2 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("x3:");
+                        double x3 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("y3:");
+                        double y3 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("x4:");
+                        double x4 = scr.nextDouble();
+//                    System.out.println();
+                        System.out.print("y4:");
+                        double y4 = scr.nextDouble();
+//                    System.out.println();
+                        addN(name, x1, y1, x2, y2, x3, y3, x4, y4);
+                        break;
+                    }
+                    case 1: {
+                        System.out.println("To add a new bank please enter the essential parameters:");
+                        System.out.print("name of the bank:");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        addB(name, x, y);
+                        break;
+                    }
+                    case 2: {
+                        System.out.println("To add a branch please enter the essential parameters:");
+                        System.out.print("name of the main bank:");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+                        Trie node =  bBanks.search(name);
+                        if(node == null){
+                            System.out.println("There is no bank with this name.");
+                            break;
+                        }
+                        System.out.print("name of the branch:");
+                        String Bname = scr.next();
+                        if(!Bname.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+//                        System.out.println();
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        addBr(name, Bname, x, y);
 
-
+                        break;
+                    }
+                    case 3: {
+                        System.out.println("TO delete a branch please enter the essential parameters:");
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        delBr(x, y);
+                        break;
+                    }
+                    case 4: {
+                        System.out.println("To see the list of all banks in a neighbour please enter the essential parameters:: ");
+                        System.out.print("name of the neighbour:");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+//                        System.out.println();
+                        listB(name);
+                        break;
+                    }
+                    case 5: {
+                        System.out.println("To see the coordinates of a main bank branches please enter the essential parameters:");
+                        System.out.print("name of the main bank:");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+                        listBrs(name);
+//                        System.out.println();
+                        break;
+                    }
+                    case 6: {
+                        System.out.println("To see which bank is the nearest one please enter the essential parameters:");
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        nearB(x, y);
+                        break;
+                    }
+                    case 7: {
+                        System.out.println("To see which branch of bank is the nearest one please enter the essential parameters:");
+                        System.out.print("name of the bank:");
+                        String name = scr.next();
+                        if(!name.matches(p)){
+                            System.out.println("Invalid Input");
+                            break;
+                        }
+                        System.out.println();
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        nearBr(name, x, y);
+                        break;
+                    }
+                    case 8: {
+                        System.out.println("To see the all the banks in a particular area please enter the essential parameters:");
+                        System.out.println("coordinates:");
+                        System.out.print("x : ");
+                        double x = scr.nextDouble();
+                        System.out.print("y : ");
+                        double y = scr.nextDouble();
+//                        System.out.println();
+                        System.out.print("radius : ");
+                        double R = scr.nextDouble();
+                        availB(R, x, y);
+                        break;
+                    }
+                    case 9:{
+                        return;
+                    }
+                    default: {
+                        System.out.println("Invalid Input.Try again.");
+                        break;
+                    }
+                }
+            }
+        }
     }
 }

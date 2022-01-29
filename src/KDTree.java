@@ -1,23 +1,19 @@
-import java.util.Scanner;
-
-
 public class KDTree {
     public  Node root;
-
-    Node deleted = null;
+    boolean flag = false;
+    public boolean checkIfBanksInArea = false;
 
     KDTree(){
         root = null;
     }
 
-    int getMax(int Max){
-        return Max;
-    }
 
     Node insert(Node root, String name, boolean isMain, double x, double y,int mod) {
         if (root == null) {
             Node node = new Node(name, isMain, x, y, mod);
             node.branches = new KDTree();
+//            node.numOfBranches += 1;
+//            System.out.println(node.numOfBranches);
             return node;
         }
 
@@ -32,7 +28,7 @@ public class KDTree {
         else {
             root.right = insert(root.right, name, isMain, x, y, (root.mod == 0 ? 1 : 0));
         }
-        root.numOfBranches += 1;
+
         return root;
     }
 
@@ -40,18 +36,12 @@ public class KDTree {
         root = insert(root, name,isMain,  x, y, 0);
     }
 
+
     private Node delete(Node root, double x, double y, int mod) {
         if (root == null) {
             return null;
         }
         if (root.x == x && root.y == y) {
-
-
-
-//            System.out.println(root.MainBank);
-
-
-
             if (root.isMain)
                 System.out.println("This is a main bank.You cannot delete it.");
             else {
@@ -65,6 +55,7 @@ public class KDTree {
                     root = min;
                     root.right = delete(root.left, min.x, min.y, (mod == 0 ? 1 : 0));
                 } else {
+                    flag = true;
                     root = null;
                 }
             }
@@ -96,9 +87,11 @@ public class KDTree {
         return res;
     }
 
+
     boolean delete(double x, double y){
+        flag = false;
         Node node = delete(root, x, y, 0);
-        if (node != null) {
+        if (flag) {
             root = node;
             return true;
         }
@@ -121,6 +114,10 @@ public class KDTree {
     }
     public void FindMaxBranches()
     {
+        if(root == null){
+            System.out.println("There is no bank");
+            return;
+        }
         System.out.println(FindMaxBranches(root, root.numOfBranches, root).name);
     }
 
@@ -128,64 +125,37 @@ public class KDTree {
         if (root != null )
         {
             FindMaxBranches(root.left, Max, MaxBranches);
-            if(root.numOfBranches > Max)
-            Max = root.numOfBranches;
-            MaxBranches =root;
+            if(root.numOfBranches > Max) {
+                Max = root.numOfBranches;
+                MaxBranches = root;
+            }
             FindMaxBranches(root.right, Max, MaxBranches);
         }
         return root;
     }
 
-    public Node searchByName(String name) {
-        return searchByName(root, name);
-    }
-
-    private Node searchByName(Node root, String name) {
-        if(root == null){
-            return null;
-        }
-        inorder(root.left);
-        if(root.name == name){
-            return root;
-        }
-        inorder(root.right);
-        return null;
-    }
-
-    static Node searchByCoordinates(Node root, double x, double y) {
-        if (root == null)
-            return null;
-
-        if (root.x == x && root.y == y)
-            return root;
-        if (root.mod == 0 && x < root.x || root.mod == 1 && y < root.y)
-            return searchByCoordinates(root.left, x, y);
-        else
-            return searchByCoordinates(root.right, x, y);
-    }
-
-    Node searchByCoordinates(double x, double y) {
-        return searchByCoordinates(root, x, y);
-    }
-
-    void printNodesInCircularArea(Node node,Region area, int mod, double x, double y, double R){
+    void printNodesInCircularArea(Node node,Region area, int mod, double x, double y, double R) {
         if (node == null)
             return;
-        int containsResult = area.containsPoint(node.x, node.y, mod);
-        if (containsResult == 0) {
-            // check both subtrees
-            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
-            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
-        } else if (containsResult > 0) {
-            // check only left subtree
-            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
-        } else {
-            // check only right subtree
-            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
-        }
-        if (containsResult == 0 && area.containsPoint(node.x, node.y, (mod == 0 ? 1 : 0)) == 0 && (node.x - x) * (node.x - x) + (node.y - y) * (node.y - y) <= R * R) {
+        if ((mod == 0 && node.x >= area.x_min && node.x <= area.x_max) || (mod == 1 && node.y >= area.y_min && node.y <= area.y_max)) {
 
-            System.out.println("|*|=> "+node.name);
+            printNodesInCircularArea(node.right, area, (mod == 0 ? 1 : 0), x, y, R);
+            printNodesInCircularArea(node.left, area, (mod == 0 ? 1 : 0), x, y, R);
+
+
+        } else if ((mod == 0 && node.x > area.x_max) || (mod == 1 && node.y > area.y_max)) {
+
+            printNodesInCircularArea(node.left, area, (mod == 0 ? 1 : 0), x, y, R);
+        } else {
+
+            printNodesInCircularArea(node.right, area, (mod == 0 ? 1 : 0), x, y, R);
+        }
+        if (((mod == 0 && node.x >= area.x_min && node.x <= area.x_max) || (mod == 1 && node.y >= area.y_min && node.y <= area.y_max)) ) {
+            mod = mod == 0 ? 1 : 0;
+            if (((mod == 0 && node.x >= area.x_min && node.x <= area.x_max) || (mod == 1 && node.y >= area.y_min && node.y <= area.y_max)) && (node.x - x) * (node.x - x) + (node.y - y) * (node.y - y) <= R * R) {
+//         area.IfContainsPoint(node.x, node.y, (mod == 0 ? 1 : 0)) == 0){
+                System.out.println("|*|=> " + node.name);
+            }
         }
     }
 
@@ -193,28 +163,34 @@ public class KDTree {
         printNodesInCircularArea(root, area, 0, x, y, R);
     }
 
-    void printNodesInArea(Node node,Region area, int mod) {
+    void printNodesInArea(Node node,Region region, int mod) {
         if (node == null)
             return;
-        int containsResult = area.containsPoint(node.x, node.y, mod);
-        if (containsResult == 0) {
-            // check both subtrees
-            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
-            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
-        } else if (containsResult > 0) {
-            // check only left subtree
-            printNodesInArea(node.left, area, (mod == 0 ? 1 : 0));
+//        int PointPosition = region.IfContainsPoint(node.x, node.y, mod);
+        if ((mod == 0 && node.x >= region.x_min && node.x <= region.x_max) || (mod == 1 && node.y >= region.y_min && node.y <= region.y_max)) {
+
+            printNodesInArea(node.right, region, (mod == 0 ? 1 : 0));
+            printNodesInArea(node.left, region, (mod == 0 ? 1 : 0));
+
+
+        } else if ((mod == 0 && node.x > region.x_max) || (mod == 1 && node.y > region.y_max)) {
+
+            printNodesInArea(node.left, region, (mod == 0 ? 1 : 0));
         } else {
-            // check only right subtree
-            printNodesInArea(node.right, area, (mod == 0 ? 1 : 0));
+
+            printNodesInArea(node.right, region, (mod == 0 ? 1 : 0));
         }
-        if (containsResult == 0 && area.containsPoint(node.x, node.y, (mod == 0 ? 1 : 0)) == 0) {
-            System.out.println("|*|=> "+node.name);
+        if (((mod == 0 && node.x >= region.x_min && node.x <= region.x_max) || (mod == 1 && node.y >= region.y_min && node.y <= region.y_max)) ) {
+            mod = mod == 0 ? 1 : 0;
+            if (((mod == 0 && node.x >= region.x_min && node.x <= region.x_max) || (mod == 1 && node.y >= region.y_min && node.y <= region.y_max))) {
+//         region.IfContainsPoint(node.x, node.y, (mod == 0 ? 1 : 0)) == 0){
+                System.out.println("|*|=> " + node.name);
+            }
         }
     }
 
-    void printNodesInArea(Region area){
-        printNodesInArea(root, area, 0);
+    void printNodesInArea(Region region){
+        printNodesInArea(root, region, 0);
     }
 
 
@@ -222,17 +198,20 @@ public class KDTree {
     private static double distance(double x1, double y1, double x2, double y2) {
         return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
     }
-    static Node closerDistance(double X, double Y, Node Point1, Node Point2){
+    static Node closer(double X, double Y, Node Point1, Node Point2){
+        // check if the first point is null then return second point
         if(Point1 == null){
             return Point2;
         }
+        // check if the second point is null then first point
         if(Point2 == null){
             return Point1;
         }
-
+        // check if the first point is closer to the point (x, y)
         if( distance(Point1.x, Point1.y, X, Y) < distance(Point2.x, Point2.y, X, Y)){
             return Point1;
         }
+        // check if the second point is closer to the point (x, y)
         return Point2;
 
     }
@@ -241,21 +220,27 @@ public class KDTree {
         if(Root == null){
             return null;
         }
-        Node nextNode;
-        Node oppositeNode;
+        // First we get close to the coordinates of the point (x, y)
+        Node morePossible;
+        // We store this to compare the best distance in the closest subtree to the point with the best distance in the other subtree
+        Node lessPossible;
+        // check if we are in x level or y level
+        // then check if the parameter based on the x or y in the current node is less than the given point then best possible distance is in left
+        // otherwise in right
         if((mod == 0 && X < Root.x) || (mod == 1 && Y < Root.y)){
-            nextNode = Root.left;
-            oppositeNode = Root.right;
+            morePossible = Root.left;
+            lessPossible = Root.right;
         }
         else {
-            nextNode = Root.right;
-            oppositeNode = Root.left;
+            morePossible = Root.right;
+            lessPossible = Root.left;
         }
-
-        Node best = closerDistance(X, Y, NearestNeighbour(nextNode, X, Y, (mod == 0 ? 1 : 0)), Root);
-
-        if (distance(X, Y , best.x, best.y) > (mod == 0 ? ((X - Root.x) * (X - Root.x)) : ((Y - Root.y) * (Y - Root.y))) ){
-            best = closerDistance(X, Y, NearestNeighbour(oppositeNode, X, Y, (mod == 0 ? 1 : 0)), best);
+        // find the best to compare
+        Node best = closer(X, Y, NearestNeighbour(morePossible, X, Y, (mod == 0 ? 1 : 0)), Root);
+        // if the best distance is not the best based on the x or y level then go to the other subtree
+        double x =  (mod == 0 ? ((X - Root.x) * (X - Root.x)) : ((Y - Root.y) * (Y - Root.y)));
+        if (distance(X, Y , best.x, best.y) > x) {
+            best = closer(X, Y, NearestNeighbour(lessPossible, X, Y, (mod == 0 ? 1 : 0)), best);
         }
 
         return best;

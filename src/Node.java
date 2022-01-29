@@ -5,7 +5,6 @@ class Node {
     Node left, right;
     boolean isMain;
     int numOfBranches;
-    String MainBank;
     KDTree branches;
 
 

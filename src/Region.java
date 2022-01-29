@@ -41,40 +41,4 @@ public class Region {
         }
     }
 
-    boolean isInRegion( double x, double y) {
-        if (x > x_max || x < x_min || y > y_max || y < y_min) {
-            return false;
-        }
-        return true;
-    }
-
-    int containsPoint(double x, double y, int mod) {
-        if (mod == 0) {
-            if (x >= x_min && x <= x_max)
-                return 0;
-            else if (x > x_max) {
-                return +1;
-            }
-//            else if (x < x_min) {
-//                return -1;
-//            }
-            else {
-                return -1;
-            }
-        }
-        else {
-            if (y >= y_min && y <= y_max)
-                return 0;
-            else if (y > y_max) {
-                return +1;
-            }
-//            else if (y < y_min) {
-//                return -1;
-//            }
-            else {
-                return -1;
-            }
-        }
-    }
-
 }

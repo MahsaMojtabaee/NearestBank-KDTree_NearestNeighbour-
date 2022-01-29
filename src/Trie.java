@@ -2,12 +2,7 @@ public class Trie {
 
     private static final int ALPHA = 26;
     boolean isEnd;
-    boolean isB = false;
-    public RectangleNode coo;
-//    MyStack<String> branches;
-//    KDTree branches;
     Node bank;
-//    Node bank;
     Region reg;
     Trie[] children = new Trie[ALPHA];
 
